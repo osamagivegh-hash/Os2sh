@@ -6,7 +6,6 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const MongoStore = require('connect-mongo');
 
 // نماذج البيانات
 const News = require('./models/News');
@@ -39,8 +38,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 🔧 إعداد الجلسات مع connect-mongo
-const sessionOptions = {
+// 🔧 إعداد الجلسات (بدون connect-mongo)
+app.use(session({
   secret: process.env.SESSION_SECRET || 'familysecret',
   resave: false,
   saveUninitialized: false,
@@ -48,20 +47,7 @@ const sessionOptions = {
     secure: isProduction,
     maxAge: 1000 * 60 * 60 * 24 // 24 ساعة
   }
-};
-
-// إضافة MongoDB store فقط إذا كان MONGO_URI موجوداً
-if (process.env.MONGO_URI) {
-  sessionOptions.store = MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
-    ttl: 14 * 24 * 60 * 60, // = 14 days
-    autoRemove: 'native'
-  });
-} else {
-  console.warn('⚠️  MONGO_URI غير مضبوط، استخدام MemoryStore للجلسات');
-}
-
-app.use(session(sessionOptions));
+}));
 
 // Multer لتخزين الصور
 const storage = multer.diskStorage({
@@ -337,7 +323,6 @@ app.get('/contact', (req, res) => {
 });
 
 app.post('/contact', (req, res) => {
-  // معالجة نموذج الاتصال (يمكنك إضافة منطق إرسال البريد هنا)
   res.render('contact', { 
     user: req.session.user, 
     success: 'تم إرسال رسالتك بنجاح، سنتواصل معك قريباً' 
