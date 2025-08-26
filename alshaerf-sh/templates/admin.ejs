@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم مدير الموقع</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .btn-primary {
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+        .btn-primary:hover {
+            background-color: #2e59d9;
+            border-color: #2e59d9;
+        }
+        .news-image {
+            max-width: 100px;
+            max-height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">موقع العائلة</a>
+            <div>
+                <span class="navbar-text me-3">مرحباً، المدير</span>
+                <a href="/admin/logout" class="btn btn-outline-light">تسجيل الخروج</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h1 class="text-center mb-4">لوحة تحكم مدير الموقع</h1>
+
+        <!-- Form to add news -->
+        <div class="card mb-5">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-plus-circle"></i> إضافة خبر جديد</h5>
+            </div>
+            <div class="card-body">
+                <form action="/admin/add-news" method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">عنوان الخبر</label>
+                            <input type="text" name="title" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">الفئة</label>
+                            <input type="text" name="category" class="form-control" value="عائلة">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">محتوى الخبر</label>
+                        <textarea name="content" class="form-control" rows="5" required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">صورة الخبر</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">اسم الكاتب</label>
+                            <input type="text" name="author" class="form-control" value="مدير الموقع">
+                            
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" name="isPublished" id="isPublished" checked value="on">
+                                <label class="form-check-label" for="isPublished">
+                                    نشر الخبر
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">إضافة الخبر</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- List of news -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-list"></i> قائمة الأخبار</h5>
+            </div>
+            <div class="card-body">
+                <% if (news && news.length > 0) { %>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>الصورة</th>
+                                    <th>العنوان</th>
+                                    <th>الفئة</th>
+                                    <th>التاريخ</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% news.forEach(function(newsItem) { %>
+                                    <tr>
+                                        <td>
+                                            <% if (newsItem.imageUrl) { %>
+                                                <img src="<%= newsItem.imageUrl %>" alt="صورة الخبر" class="news-image">
+                                            <% } else { %>
+                                                <span class="text-muted">بدون صورة</span>
+                                            <% } %>
+                                        </td>
+                                        <td><%= newsItem.title %></td>
+                                        <td><%= newsItem.category %></td>
+                                        <td><%= newsItem.createdAt ? newsItem.createdAt.toLocaleDateString('ar-SA') : 'غير معروف' %></td>
+                                        <td>
+                                            <% if (newsItem.isPublished) { %>
+                                                <span class="badge bg-success">منشور</span>
+                                            <% } else { %>
+                                                <span class="badge bg-warning">مسودة</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <a href="/admin/edit-news/<%= newsItem._id %>" class="btn btn-sm btn-primary">تعديل</a>
+                                            <form action="/admin/delete-news/<%= newsItem._id %>" method="POST" style="display:inline;">
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟')">حذف</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle"></i> لا توجد أخبار حتى الآن
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">© 2024 موقع العائلة - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

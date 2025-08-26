@@ -1,0 +1,74 @@
+/* خطوط عامة */
+body {
+  font-family: "Cairo", Tahoma, Arial, sans-serif;
+  background-color: #f8f9fa;
+  direction: rtl;
+  text-align: right;
+}
+
+/* الهيدر والفوتر */
+header, footer {
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
+}
+
+/* البطاقات */
+.card {
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
+}
+
+/* زرار */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: #7a3e1c;
+  border-color: #7a3e1c;
+}
+
+.btn-primary:hover {
+  background-color: #5c2f15;
+  border-color: #5c2f15;
+}
+
+/* جدول الأدمن */
+.table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table th {
+  text-align: center;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+/* التعليقات */
+#comments {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+}
+
+#comments p {
+  padding: 8px 12px;
+  background: #f1f1f1;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+/* نمط المنتجات العضوية */
+.not-organic {
+  opacity: 0.7;
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "id": 0,
+    "productName": "سكري مفتّل",
+    "price": 9.5,
+    "from": "القصيم - السعودية",
+    "nutrients": "ألياف، بوتاسيوم، مغنيسيوم",
+    "quantity": "100 غرام",
+    "description": "طريّ بطعم كاراميل لطيف، مثالي للتغليف الصغير.",
+    "organic": true
+  },
+  {
+    "id": 1,
+    "productName": "عجوة المدينة",
+    "price": 14.0,
+    "from": "المدينة المنورة - السعودية",
+    "nutrients": "ألياف، مضادات أكسدة",
+    "quantity": "100 غرام",
+    "description": "فاخر بقوام لين ونكهة مميّزة.",
+    "organic": true
+  },
+  {
+    "id": 2,
+    "productName": "مجدول",
+    "price": 12.5,
+    "from": "تبوك - السعودية",
+    "nutrients": "سكريات طبيعية، بوتاسيوم",
+    "quantity": "100 غرام",
+    "description": "حبات كبيرة وحلوة جدًا مناسبة للطاقة السريعة.",
+    "organic": false
+  },
+  {
+    "id": 3,
+    "productName": "صفاوي",
+    "price": 8.0,
+    "from": "المدينة المنورة - السعودية",
+    "nutrients": "ألياف، معادن",
+    "quantity": "100 غرام",
+    "description": "حبات داكنة بطعم متوازن وسعر اقتصادي.",
+    "organic": true
+  },
+  {
+    "id": 4,
+    "productName": "برحي",
+    "price": 7.0,
+    "from": "الأحساء - السعودية",
+    "nutrients": "سكريات طبيعية، ألياف",
+    "quantity": "100 غرام",
+    "description": "قوام طري ونكهة لطيفة مناسب للأطفال.",
+    "organic": false
+  },
+  {
+    "id": 5,
+    "productName": "خلاص",
+    "price": 10.0,
+    "from": "الخرج - السعودية",
+    "nutrients": "بوتاسيوم، ألياف",
+    "quantity": "100 غرام",
+    "description": "توازن ممتاز بين الحلاوة والقوام.",
+    "organic": true
+  }
+]
