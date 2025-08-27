@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
@@ -34,8 +35,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 🔧 إعداد الجلسات (بدون connect-mongo)
-app.use(session({
+// 🔧 إعداد الجلسات مع connect-mongo للبيئة الإنتاجية
+const sessionOptions = {
   secret: process.env.SESSION_SECRET || 'familysecret',
   resave: false,
   saveUninitialized: false,
@@ -43,7 +44,21 @@ app.use(session({
     secure: isProduction,
     maxAge: 1000 * 60 * 60 * 24 // 24 ساعة
   }
-}));
+};
+
+// إضافة MongoDB store فقط إذا كان MONGO_URI موجوداً
+if (process.env.MONGO_URI) {
+  sessionOptions.store = MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    ttl: 14 * 24 * 60 * 60, // = 14 days
+    autoRemove: 'native'
+  });
+  console.log('✅ تم تكوين تخزين الجلسات في MongoDB');
+} else {
+  console.warn('⚠️  MONGO_URI غير مضبوط، استخدام MemoryStore للجلسات (غير مناسب للإنتاج)');
+}
+
+app.use(session(sessionOptions));
 
 // Multer لتخزين الصور
 const storage = multer.diskStorage({
