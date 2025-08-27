@@ -138,9 +138,17 @@ const createDefaultAdmin = async () => {
       console.log('🔑 كلمة المرور: admin123');
     } else {
       console.log('✅ المستخدم المسؤول موجود بالفعل');
+      
+      // تحديث كلمة المرور لتكون متوافقة مع النظام الجديد
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      await User.updateOne(
+        { email: 'admin@example.com' },
+        { $set: { password: hashedPassword, isAdmin: true } }
+      );
+      console.log('✅ تم تحديث بيانات المستخدم المسؤول');
     }
   } catch (error) {
-    console.error('❌ خطأ في إنشاء المستخدم الافتراضي:', error.message);
+    console.error('❌ خطأ في إنشاء/تحديث المستخدم الافتراضي:', error.message);
   }
 };
 
@@ -206,12 +214,12 @@ app.get('/admin/login', (req, res) => {
             <form action="/admin/login" method="POST">
                 <div class="form-group">
                     <label for="email">البريد الإلكتروني</label>
-                    <input type="email" id="email" name="email" placeholder="أدخل البريد الإلكتروني" required>
+                    <input type="email" id="email" name="email" placeholder="أدخل البريد الإلكتروني" required value="admin@example.com">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">كلمة المرور</label>
-                    <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required>
+                    <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required value="admin123">
                 </div>
                 
                 <button type="submit">تسجيل الدخول</button>
@@ -237,9 +245,11 @@ app.get('/admin/login', (req, res) => {
 app.post('/admin/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(`🔐 محاولة تسجيل دخول بالبريد: ${email}`);
     
     // التحقق من اتصال قاعدة البيانات أولاً
     if (mongoose.connection.readyState !== 1) {
+      console.log('❌ محاولة تسجيل دخول بدون اتصال بقاعدة البيانات');
       return res.send(`
         <!DOCTYPE html>
         <html lang="ar" dir="rtl">
@@ -266,6 +276,7 @@ app.post('/admin/login', async (req, res) => {
     const user = await User.findOne({ email });
     
     if (!user) {
+      console.log(`❌ المستخدم غير موجود: ${email}`);
       return res.send(`
         <!DOCTYPE html>
         <html lang="ar" dir="rtl">
@@ -273,7 +284,11 @@ app.post('/admin/login', async (req, res) => {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>خطأ في التسجيل</title>
-            <style>body { font-family: Arial; padding: 50px; text-align: center; } .error { color: red; }</style>
+            <style>
+                body { font-family: Arial; padding: 50px; text-align: center; background: #f8f9fa; }
+                .error { color: #e53e3e; margin-bottom: 20px; }
+                a { color: #007bff; text-decoration: none; }
+            </style>
         </head>
         <body>
             <div class="error">المستخدم غير موجود</div>
@@ -283,17 +298,23 @@ app.post('/admin/login', async (req, res) => {
       `);
     }
 
+    console.log(`✅ وجد المستخدم: ${user.name}`);
+    
     // التحقق من كلمة المرور
     const match = await bcrypt.compare(password, user.password);
     
     if (match) {
+      console.log(`✅ كلمة المرور صحيحة للمستخدم: ${user.name}`);
+      
       // حفظ معلومات المستخدم في الجلسة
       req.session.user = user;
       req.session.admin = user.isAdmin;
       
+      console.log(`✅ تم تسجيل دخول المستخدم: ${user.name}، isAdmin: ${user.isAdmin}`);
       return res.redirect('/admin');
     }
     
+    console.log(`❌ كلمة المرور خاطئة للمستخدم: ${user.name}`);
     res.send(`
       <!DOCTYPE html>
       <html lang="ar" dir="rtl">
@@ -301,7 +322,11 @@ app.post('/admin/login', async (req, res) => {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>خطأ في التسجيل</title>
-          <style>body { font-family: Arial; padding: 50px; text-align: center; } .error { color: red; }</style>
+          <style>
+              body { font-family: Arial; padding: 50px; text-align: center; background: #f8f9fa; }
+              .error { color: #e53e3e; margin-bottom: 20px; }
+              a { color: #007bff; text-decoration: none; }
+          </style>
       </head>
       <body>
           <div class="error">كلمة المرور خاطئة</div>
@@ -310,8 +335,26 @@ app.post('/admin/login', async (req, res) => {
       </html>
     `);
   } catch (err) {
-    console.error(err);
-    res.status(500).send('خطأ في تسجيل الدخول');
+    console.error('❌ خطأ في تسجيل الدخول:', err);
+    res.status(500).send(`
+      <!DOCTYPE html>
+      <html lang="ar" dir="rtl">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>خطأ في الخادم</title>
+          <style>
+              body { font-family: Arial; padding: 50px; text-align: center; background: #f8f9fa; }
+              .error { color: #e53e3e; margin-bottom: 20px; }
+              a { color: #007bff; text-decoration: none; }
+          </style>
+      </head>
+      <body>
+          <div class="error">حدث خطأ في الخادم أثناء تسجيل الدخول</div>
+          <a href="/admin/login">العودة إلى صفحة التسجيل</a>
+      </body>
+      </html>
+    `);
   }
 });
 
@@ -364,6 +407,17 @@ app.get('/debug', async (req, res) => {
     3: 'جاري الفصل'
   };
   
+  // الحصول على عدد المستخدمين والأخبار
+  let usersCount = 0;
+  let newsCount = 0;
+  
+  try {
+    usersCount = await User.countDocuments();
+    newsCount = await News.countDocuments();
+  } catch (error) {
+    console.error('❌ خطأ في عد المستندات:', error.message);
+  }
+  
   res.send(`
     <!DOCTYPE html>
     <html dir="rtl">
@@ -371,40 +425,171 @@ app.get('/debug', async (req, res) => {
         <meta charset="UTF-8">
         <title>معلومات التصحيح</title>
         <style>
-            body { font-family: Arial; padding: 20px; }
-            .card { background: #f8f9fa; padding: 20px; margin: 10px 0; border-radius: 5px; }
-            .success { background: #d4edda; color: #155724; }
-            .warning { background: #fff3cd; color: #856404; }
-            .danger { background: #f8d7da; color: #721c24; }
+            body { font-family: Arial; padding: 20px; background: #f8f9fa; }
+            .container { max-width: 800px; margin: 0 auto; }
+            .card { background: white; padding: 20px; margin: 10px 0; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+            .success { border-left: 4px solid #48bb78; }
+            .warning { border-left: 4px solid #ed8936; }
+            .danger { border-left: 4px solid #e53e3e; }
+            h1 { color: #2d3748; }
+            h2 { color: #4a5568; margin-bottom: 15px; }
+            a { color: #4299e1; text-decoration: none; }
+            a:hover { text-decoration: underline; }
+            .user-list { margin-top: 15px; }
+            .user-item { padding: 10px; border-bottom: 1px solid #e2e8f0; }
         </style>
     </head>
     <body>
-        <h1>معلومات التصحيح</h1>
-        
-        <div class="card ${dbStatus === 1 ? 'success' : 'danger'}">
-            <h2>حالة قاعدة البيانات</h2>
-            <p>الحالة: ${statusMap[dbStatus] || 'غير معروف'} (${dbStatus})</p>
-            <p>MONGO_URI: ${process.env.MONGO_URI ? 'مضبوط' : 'غير مضبوط'}</p>
-        </div>
-        
-        <div class="card">
-            <h2>إعدادات الخادم</h2>
-            <p>المنفذ: ${port}</p>
-            <p>الوضع: ${isProduction ? 'إنتاج' : 'تطوير'}</p>
-        </div>
-        
-        <div class="card">
-            <h2>إجراءات التصحيح</h2>
-            <p><a href="/health">التحقق من صحة الاتصال (JSON)</a></p>
-            <p><a href="/admin/login">صفحة تسجيل الدخول للإدارة</a></p>
+        <div class="container">
+            <h1>معلومات التصحيح</h1>
+            
+            <div class="card ${dbStatus === 1 ? 'success' : 'danger'}">
+                <h2>حالة قاعدة البيانات</h2>
+                <p><strong>الحالة:</strong> ${statusMap[dbStatus] || 'غير معروف'} (${dbStatus})</p>
+                <p><strong>MONGO_URI:</strong> ${process.env.MONGO_URI ? 'مضبوط' : 'غير مضبوط'}</p>
+                <p><strong>عدد المستخدمين:</strong> ${usersCount}</p>
+                <p><strong>عدد الأخبار:</strong> ${newsCount}</p>
+            </div>
+            
+            <div class="card">
+                <h2>إعدادات الخادم</h2>
+                <p><strong>المنفذ:</strong> ${port}</p>
+                <p><strong>الوضع:</strong> ${isProduction ? 'إنتاج' : 'تطوير'}</p>
+                <p><strong>الجلسات:</strong> ${process.env.SESSION_SECRET ? 'مضبوطة' : 'غير مضبوطة'}</p>
+            </div>
+            
+            <div class="card">
+                <h2>إجراءات التصحيح</h2>
+                <p><a href="/health" target="_blank">التحقق من صحة الاتصال (JSON)</a></p>
+                <p><a href="/admin/login">صفحة تسجيل الدخول للإدارة</a></p>
+                <p><a href="/admin">لوحة التحكم (إذا كنت مسجلاً)</a></p>
+            </div>
+            
+            <div class="card">
+                <h2>بيانات تسجيل الدخول الافتراضية</h2>
+                <p><strong>البريد الإلكتروني:</strong> admin@example.com</p>
+                <p><strong>كلمة المرور:</strong> admin123</p>
+                <p><strong>ملاحظة:</strong> سيتم إنشاء هذا المستخدم تلقائياً إذا لم يكن موجوداً</p>
+            </div>
         </div>
     </body>
     </html>
   `);
 });
 
-// الباقي من الروتس والإعدادات تبقى كما هي (مثل admin panel, customer routes, etc.)
-// ... [يجب إضافة جميع الروتس الأخرى هنا كما كانت في الإصدار السابق]
+// Admin panel - عرض الأخبار
+app.get('/admin', isAdmin, async (req, res) => {
+  try {
+    const news = await News.find().sort({ createdAt: -1 });
+    
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="ar" dir="rtl">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>لوحة التحكم - أخبار العائلة</title>
+          <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+              body { background: #f7fafc; color: #2d3748; }
+              .admin-header { background: #2d3748; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+              .admin-title { font-size: 1.5rem; }
+              .admin-nav a { color: white; text-decoration: none; margin-left: 20px; padding: 8px 16px; border-radius: 20px; transition: background 0.3s ease; }
+              .admin-nav a:hover { background: rgba(255, 255, 255, 0.1); }
+              .logout-btn { background: #e53e3e; }
+              .logout-btn:hover { background: #c53030; }
+              .admin-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+              .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+              .stat-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); text-align: center; }
+              .stat-number { font-size: 2.5rem; font-weight: bold; color: #4a5568; margin-bottom: 10px; }
+              .stat-label { color: #718096; font-size: 1.1rem; }
+              .news-list { background: white; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden; }
+              .news-item { padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+              .news-item:last-child { border-bottom: none; }
+              .news-info h3 { color: #2d3748; margin-bottom: 5px; }
+              .news-meta { color: #718096; font-size: 0.9rem; }
+              .news-actions { display: flex; gap: 10px; }
+              .action-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; font-size: 0.9rem; }
+              .edit-btn { background: #3182ce; color: white; }
+              .edit-btn:hover { background: #2c5282; }
+              .delete-btn { background: #e53e3e; color: white; }
+              .delete-btn:hover { background: #c53030; }
+              .published-tag { background: #48bb78; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 10px; }
+              .draft-tag { background: #718096; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 10px; }
+              @media (max-width: 768px) { 
+                  .admin-nav { display: flex; flex-direction: column; gap: 10px; }
+                  .news-item { flex-direction: column; align-items: flex-start; gap: 15px; }
+                  .news-actions { align-self: flex-end; }
+              }
+          </style>
+      </head>
+      <body>
+          <div class="admin-header">
+              <div class="admin-title">
+                  <h1>لوحة تحكم أخبار العائلة</h1>
+              </div>
+              <div class="admin-nav">
+                  <a href="/">الموقع الرئيسي</a>
+                  <a href="/admin/logout" class="logout-btn">تسجيل الخروج</a>
+              </div>
+          </div>
+
+          <div class="admin-container">
+              <div class="stats-grid">
+                  <div class="stat-card">
+                      <div class="stat-number">${news.length}</div>
+                      <div class="stat-label">إجمالي الأخبار</div>
+                  </div>
+                  <div class="stat-card">
+                      <div class="stat-number">${news.filter(n => n.isPublished).length}</div>
+                      <div class="stat-label">أخبار منشورة</div>
+                  </div>
+                  <div class="stat-card">
+                      <div class="stat-number">${news.filter(n => !n.isPublished).length}</div>
+                      <div class="stat-label">مسودات</div>
+                  </div>
+              </div>
+
+              <div class="news-list">
+                  <h2 style="padding: 20px; border-bottom: 1px solid #e2e8f0; margin: 0;">إدارة الأخبار</h2>
+                  
+                  ${news.length > 0 ? news.map(item => `
+                      <div class="news-item">
+                          <div class="news-info">
+                              <h3>
+                                  ${item.isPublished ? '<span class="published-tag">منشور</span>' : '<span class="draft-tag">مسودة</span>'}
+                                  ${item.title}
+                              </h3>
+                              <div class="news-meta">
+                                  ${item.category} | ${item.createdAt.toLocaleDateString('ar-EG')}
+                              </div>
+                          </div>
+                          
+                          <div class="news-actions">
+                              <a href="/admin/edit-news/${item._id}" class="action-btn edit-btn">تعديل</a>
+                              <form action="/admin/delete-news/${item._id}" method="POST" style="display: inline;">
+                                  <button type="submit" class="action-btn delete-btn" onclick="return confirm('هل أنت متأكد من حذف هذا الخبر؟')">حذف</button>
+                              </form>
+                          </div>
+                      </div>
+                  `).join('') : `
+                  <div style="padding: 40px; text-align: center; color: #718096;">
+                      <p>لا توجد أخبار حتى الآن</p>
+                  </div>
+                  `}
+              </div>
+          </div>
+      </body>
+      </html>
+    `);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('خطأ في تحميل لوحة التحكم');
+  }
+});
+
+// باقي الروتس (Add news, Edit news, Delete news, etc.) تبقى كما هي
+// ... [يجب إضافة جميع الروتس الأخرى هنا]
 
 // 🔧 تشغيل الخادم مع معالجة الأخطاء
 const startServer = async () => {
