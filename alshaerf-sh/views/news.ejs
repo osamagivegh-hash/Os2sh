@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= news.title %> - أخبار العائلة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+        }
+        
+        .back-link {
+            display: inline-block;
+            color: #4a5568;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            border: 2px solid #4a5568;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            background: #4a5568;
+            color: white;
+        }
+        
+        .news-article {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .news-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .news-meta {
+            color: #718096;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .news-content {
+            color: #2d3748;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+        
+        .comments-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .comment-form {
+            margin-bottom: 30px;
+        }
+        
+        .comment-form textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 15px;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .comment-form button {
+            background: #4a5568;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .comment-form button:hover {
+            background: #2d3748;
+        }
+        
+        .comment {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4a5568;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+        
+        .comment-text {
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        
+        .no-comments {
+            text-align: center;
+            color: #718096;
+            padding: 20px;
+        }
+        
+        .login-prompt {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/" class="back-link">← العودة إلى الرئيسية</a>
+            <h1><%= news.title %></h1>
+        </header>
+
+        <div class="news-article">
+            <% if (news.imageUrl) { %>
+                <img src="<%= news.imageUrl %>" alt="<%= news.title %>" class="news-image">
+            <% } %>
+            
+            <div class="news-meta">
+                نشر في: <%= news.createdAt.toLocaleDateString('ar-EG') %>
+            </div>
+            
+            <div class="news-content">
+                <%= news.content %>
+            </div>
+        </div>
+
+        <div class="comments-section">
+            <h2>التعليقات</h2>
+            
+            <% if (user) { %>
+                <form class="comment-form" action="/news/<%= news._id %>/comment" method="POST">
+                    <textarea name="text" placeholder="اكتب تعليقك هنا..." required></textarea>
+                    <button type="submit">إضافة التعليق</button>
+                </form>
+            <% } else { %>
+                <div class="login-prompt">
+                    <p>يجب <a href="/login" style="color: #c53030;">تسجيل الدخول</a> لإضافة تعليق</p>
+                </div>
+            <% } %>
+            
+            <% if (comments && comments.length > 0) { %>
+                <% comments.forEach(comment => { %>
+                    <div class="comment">
+                        <div class="comment-header">
+                            <strong><%= comment.user.name %></strong>
+                            <span><%= comment.createdAt.toLocaleDateString('ar-EG') %></span>
+                        </div>
+                        <div class="comment-text">
+                            <%= comment.text %>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="no-comments">
+                    <p>لا توجد تعليقات بعد. كن أول من يعلق!</p>
+                </div>
+            <% } %>
+        </div>
+
+        <footer>
+            <p>© 2023 موقع أخبار العائلة. جميع الحقوق محفوظة.</p>
+        </footer>
+    </div>
+</body>
+</html>

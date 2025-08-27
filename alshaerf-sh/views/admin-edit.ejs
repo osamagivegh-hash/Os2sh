@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعديل خبر - أخبار العائلة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        body {
+            background: #f7fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        
+        .admin-header {
+            background: #2d3748;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-title {
+            font-size: 1.5rem;
+        }
+        
+        .admin-nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background 0.3s ease;
+        }
+        
+        .admin-nav a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .admin-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .edit-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-title {
+            color: #2d3748;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4a5568;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+            margin-left: 10px;
+        }
+        
+        .image-preview {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .remove-image {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .remove-image input {
+            width: auto;
+            margin-left: 10px;
+        }
+        
+        .btn {
+            background: #4a5568;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+            margin-right: 10px;
+        }
+        
+        .btn:hover {
+            background: #2d3748;
+        }
+        
+        .btn-primary {
+            background: #3182ce;
+        }
+        
+        .btn-primary:hover {
+            background: #2c5282;
+        }
+        
+        .btn-secondary {
+            background: #718096;
+        }
+        
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-title">
+            <h1>تعديل خبر</h1>
+        </div>
+        <div class="admin-nav">
+            <a href="/admin">العودة للوحة التحكم</a>
+            <a href="/">الموقع الرئيسي</a>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div class="edit-form">
+            <h2 class="form-title">تعديل الخبر: <%= newsItem.title %></h2>
+            
+            <form action="/admin/edit-news/<%= newsItem._id %>" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">عنوان الخبر</label>
+                    <input type="text" id="title" name="title" value="<%= newsItem.title %>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">محتوى الخبر</label>
+                    <textarea id="content" name="content" required><%= newsItem.content %></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">التصنيف</label>
+                    <select id="category" name="category">
+                        <option value="عام" <%= newsItem.category === 'عام' ? 'selected' : '' %>>عام</option>
+                        <option value="مناسبات" <%= newsItem.category === 'مناسبات' ? 'selected' : '' %>>مناسبات</option>
+                        <option value="أحداث" <%= newsItem.category === 'أحداث' ? 'selected' : '' %>>أحداث</option>
+                        <option value="تهاني" <%= newsItem.category === 'تهاني' ? 'selected' : '' %>>تهاني</option>
+                    </select>
+                </div>
+                
+                <% if (newsItem.imageUrl) { %>
+                    <div class="image-preview">
+                        <label>الصورة الحالية:</label>
+                        <img src="<%= newsItem.imageUrl %>" alt="<%= newsItem.title %>">
+                    </div>
+                    
+                    <div class="remove-image">
+                        <input type="checkbox" id="removeImage" name="removeImage" value="true">
+                        <label for="removeImage">حذف الصورة الحالية</label>
+                    </div>
+                <% } %>
+                
+                <div class="form-group">
+                    <label for="image">صورة جديدة (اختياري)</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="isPublished" name="isPublished" <%= newsItem.isPublished ? 'checked' : '' %>>
+                    <label for="isPublished">نشر الخبر</label>
+                </div>
+                
+                <div class="form-actions">
+                    <div>
+                        <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+                        <a href="/admin" class="btn btn-secondary">إلغاء</a>
+                    </div>
+                    <a href="/news/<%= newsItem._id %>" class="btn" target="_blank">معاينة الخبر</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

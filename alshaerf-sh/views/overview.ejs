@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أخبار العائلة - الصفحة الرئيسية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .auth-links {
+            margin: 15px 0;
+        }
+        
+        .auth-links a {
+            color: #4a5568;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 8px 16px;
+            border: 2px solid #4a5568;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-links a:hover {
+            background: #4a5568;
+            color: white;
+        }
+        
+        .welcome-message {
+            background: #48bb78;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin: 10px 0;
+        }
+        
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .news-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .news-card h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .news-card p {
+            color: #4a5568;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        
+        .news-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .read-more {
+            display: inline-block;
+            background: #4a5568;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: background 0.3s ease;
+        }
+        
+        .read-more:hover {
+            background: #2d3748;
+        }
+        
+        .no-news {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            color: #4a5568;
+        }
+        
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .footer-links {
+            margin: 15px 0;
+        }
+        
+        .footer-links a {
+            color: #4a5568;
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #2d3748;
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>أخبار العائلة</h1>
+            
+            <% if (user) { %>
+                <div class="welcome-message">
+                    مرحباً، <strong><%= user.name %></strong> | <a href="/logout" style="color: white; text-decoration: underline;">تسجيل الخروج</a>
+                </div>
+            <% } else { %>
+                <div class="auth-links">
+                    <a href="/login">تسجيل الدخول</a>
+                    <a href="/register">إنشاء حساب</a>
+                </div>
+            <% } %>
+        </header>
+
+        <main>
+            <% if (news && news.length > 0) { %>
+                <div class="news-grid">
+                    <% news.forEach(item => { %>
+                        <div class="news-card">
+                            <% if (item.imageUrl) { %>
+                                <img src="<%= item.imageUrl %>" alt="<%= item.title %>" class="news-image">
+                            <% } %>
+                            <h2><%= item.title %></h2>
+                            <p><%= item.content.substring(0, 150) %>...</p>
+                            <a href="/news/<%= item._id %>" class="read-more">قراءة المزيد</a>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="no-news">
+                    <h2>لا توجد أخبار متاحة حالياً</h2>
+                    <p>يرجى العودة لاحقاً لمشاهدة آخر أخبار العائلة</p>
+                </div>
+            <% } %>
+        </main>
+
+        <footer>
+            <div class="footer-links">
+                <a href="/about">عن الموقع</a>
+                <a href="/contact">اتصل بنا</a>
+                <a href="/admin/login">لوحة التحكم</a>
+            </div>
+            <p>© 2023 موقع أخبار العائلة. جميع الحقوق محفوظة.</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - أخبار العائلة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        body {
+            background: #f7fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        
+        .admin-header {
+            background: #2d3748;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-title {
+            font-size: 1.5rem;
+        }
+        
+        .admin-nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background 0.3s ease;
+        }
+        
+        .admin-nav a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .logout-btn {
+            background: #e53e3e;
+        }
+        
+        .logout-btn:hover {
+            background: #c53030;
+        }
+        
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+        
+        .add-news-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .form-title {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4a5568;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+            margin-left: 10px;
+        }
+        
+        .btn {
+            background: #4a5568;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #2d3748;
+        }
+        
+        .btn-primary {
+            background: #3182ce;
+        }
+        
+        .btn-primary:hover {
+            background: #2c5282;
+        }
+        
+        .news-list {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .news-item {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        
+        .news-info h3 {
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .news-meta {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        
+        .news-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+        
+        .edit-btn {
+            background: #3182ce;
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            background: #2c5282;
+        }
+        
+        .delete-btn {
+            background: #e53e3e;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background: #c53030;
+        }
+        
+        .published-tag {
+            background: #48bb78;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-right: 10px;
+        }
+        
+        .draft-tag {
+            background: #718096;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-nav {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .news-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .news-actions {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-title">
+            <h1><i class="fas fa-cog"></i> لوحة تحكم أخبار العائلة</h1>
+        </div>
+        <div class="admin-nav">
+            <a href="/">الموقع الرئيسي</a>
+            <a href="/admin/logout" class="logout-btn">تسجيل الخروج</a>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number"><%= news.length %></div>
+                <div class="stat-label">إجمالي الأخبار</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><%= news.filter(n => n.isPublished).length %></div>
+                <div class="stat-label">أخبار منشورة</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><%= news.filter(n => !n.isPublished).length %></div>
+                <div class="stat-label">مسودات</div>
+            </div>
+        </div>
+
+        <div class="add-news-form">
+            <h2 class="form-title"><i class="fas fa-plus"></i> إضافة خبر جديد</h2>
+            <form action="/admin/add-news" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">عنوان الخبر</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">محتوى الخبر</label>
+                    <textarea id="content" name="content" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">التصنيف</label>
+                    <select id="category" name="category">
+                        <option value="عام">عام</option>
+                        <option value="مناسبات">مناسبات</option>
+                        <option value="أحداث">أحداث</option>
+                        <option value="تهاني">تهاني</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="image">صورة الخبر (اختياري)</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="isPublished" name="isPublished">
+                    <label for="isPublished">نشر الخبر مباشرة</label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">إضافة الخبر</button>
+            </form>
+        </div>
+
+        <div class="news-list">
+            <h2 style="padding: 20px; border-bottom: 1px solid #e2e8f0; margin: 0;">
+                <i class="fas fa-newspaper"></i> إدارة الأخبار
+            </h2>
+            
+            <% if (news.length > 0) { %>
+                <% news.forEach(item => { %>
+                    <div class="news-item">
+                        <div class="news-info">
+                            <h3>
+                                <% if (item.isPublished) { %>
+                                    <span class="published-tag">منشور</span>
+                                <% } else { %>
+                                    <span class="draft-tag">مسودة</span>
+                                <% } %>
+                                <%= item.title %>
+                            </h3>
+                            <div class="news-meta">
+                                <%= item.category %> | <%= item.createdAt.toLocaleDateString('ar-EG') %>
+                            </div>
+                        </div>
+                        
+                        <div class="news-actions">
+                            <a href="/admin/edit-news/<%= item._id %>" class="action-btn edit-btn">
+                                <i class="fas fa-edit"></i> تعديل
+                            </a>
+                            <form action="/admin/delete-news/<%= item._id %>" method="POST" style="display: inline;">
+                                <button type="submit" class="action-btn delete-btn" onclick="return confirm('هل أنت متأكد من حذف هذا الخبر؟')">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div style="padding: 40px; text-align: center; color: #718096;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <p>لا توجد أخبار حتى الآن</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        // تأكيد الحذف
+        function confirmDelete() {
+            return confirm('هل أنت متأكد من حذف هذا الخبر؟');
+        }
+    </script>
+</body>
+</html>
